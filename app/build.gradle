@@ -1,0 +1,98 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "perevozchykov.oleksandr.findrepo"
+        minSdkVersion 22
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    compile 'com.squareup.retrofit2:retrofit:2.4.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.4.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.android.support:design:26.1.0'
+}
+
+import com.android.ddmlib.AndroidDebugBridge
+import com.android.ddmlib.IDevice
+// From https://android.googlesource.com/platform/tools/build/+/925c0b5cf8730105dd5aa8c851141d5688d07789/gradle/src/main/groovy/com/android/build/gradle/internal/tasks/TestFlavorTask.groovy
+private IDevice[] waitConnectedDevices() {
+    AndroidDebugBridge.initIfNeeded(false /*clientSupport*/)
+    AndroidDebugBridge bridge = AndroidDebugBridge.createBridge(android.getAdbExecutable().absolutePath,
+            false /*forceNewBridge*/)
+    long timeOut = 30000 // 30 sec
+    int sleepTime = 1000
+    while (!bridge.hasInitialDeviceList() && timeOut > 0) {
+        sleep(sleepTime)
+        timeOut -= sleepTime
+    }
+    if (timeOut <= 0 && !bridge.hasInitialDeviceList()) {
+        throw new RuntimeException("Timeout getting device list.", null)
+    }
+    IDevice[] devices = bridge.devices
+    if (devices.length == 0) {
+        throw new RuntimeException("No connected devices!", null)
+    }
+    devices
+}
+
+task installAut {
+    doLast {
+        IDevice[] devices = waitConnectedDevices()
+        devices.each { device ->
+            file('.').traverse(maxDepth: 0) { apk ->
+                if (apk.absolutePath.toLowerCase().endsWith('.apk')) {
+                    println String.format(
+                            "Device '%s': installing %s", device.serialNumber, apk.absolutePath)
+                    project.exec {
+                        executable = android.getAdbExecutable().absolutePath
+                        args '-s'
+                        args device.serialNumber
+                        args 'install'
+                        args '-r'
+                        args apk.absolutePath
+                    }
+                }
+            }
+        }
+    }
+}
+
+task uninstallAut {
+    doLast {
+        IDevice[] devices = waitConnectedDevices()
+        devices.each {
+            println String.format(
+                    "Device '%s': uninstalling %s", it.serialNumber, autPackageName)
+            it.uninstallPackage(autPackageName)
+        }
+    }
+}
+
+afterEvaluate {
+    installDebug.dependsOn installAut
+    uninstallDebug.dependsOn uninstallAut
+}

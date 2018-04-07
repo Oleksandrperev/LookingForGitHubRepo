@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FindRepo</string>
+    <string name="kotlin_json_parser">Search for Repos</string>
+    <string name="searh">Searh</string>
+    <string name="textview">TextView</string>
+
+</resources>
