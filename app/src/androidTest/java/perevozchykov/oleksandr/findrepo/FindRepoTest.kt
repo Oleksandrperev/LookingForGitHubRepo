@@ -37,7 +37,7 @@ import java.util.*
 class FindRepoTest: BaseTest() {
 
     @Test
-    fun searchRepo() {
+    fun searchRepoByName() {
 
         val searchingScreen = SearchingScreen()
         searchingScreen.typeRepoName("Espresso Kotlin")
@@ -49,7 +49,7 @@ class FindRepoTest: BaseTest() {
     }
 
     @Test
-    fun searhUser() {
+    fun searhRepoByUser() {
 
         val searchingScreen = SearchingScreen()
         searchingScreen.typeUserName("bay-qa")
