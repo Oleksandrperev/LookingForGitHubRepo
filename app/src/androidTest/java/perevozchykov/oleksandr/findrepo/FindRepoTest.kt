@@ -40,11 +40,11 @@ class FindRepoTest: BaseTest() {
     fun searchRepo() {
 
         val searchingScreen = SearchingScreen()
-        val editTextForSearching = searchingScreen.typeRepoName("Espresso Kotlin")
-        val clickForSearchingRepo = searchingScreen.clickSearchRepoButton()
+        searchingScreen.typeRepoName("Espresso Kotlin")
+        searchingScreen.clickSearchRepoButton()
         val randomNumber = Random().nextInt(5)
         Thread.sleep(2000)
-        val openRepoByIndex = searchingScreen.clickRepoByIndex(randomNumber)
+        searchingScreen.clickRepoByIndex(randomNumber)
 
     }
 
@@ -52,11 +52,11 @@ class FindRepoTest: BaseTest() {
     fun searhUser() {
 
         val searchingScreen = SearchingScreen()
-        val editUserName = searchingScreen.typeUserName("bay-qa")
-        val clickForSearchingUser = searchingScreen.clickSearchUserButton()
+        searchingScreen.typeUserName("bay-qa")
+        searchingScreen.clickSearchUserButton()
         val randomNumber = Random().nextInt(5)
         Thread.sleep(2000)
-        val openUserByIndex = searchingScreen.clickUserByIndex(randomNumber)
+        searchingScreen.clickUserByIndex(randomNumber)
     }
 
 }
